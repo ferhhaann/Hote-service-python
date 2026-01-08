@@ -1,6 +1,6 @@
 fastapi==0.121.2
 uvicorn==0.38.0
-pymongo==4.15.5
+pymongo[srv]==4.15.5
 pydantic==2.12.4
 pydantic-settings
 python-jose[cryptography]

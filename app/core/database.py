@@ -1,9 +1,15 @@
 from pymongo import MongoClient
-import os
+from app.core.config import get_settings
 
-MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
+settings = get_settings()
 
-client = MongoClient(MONGO_URL)
-db = client["hotel_db"]
+client = MongoClient(
+    settings.MONGODB_URL,
+    maxPoolSize=50,
+    minPoolSize=10,
+    serverSelectionTimeoutMS=5000,
+    connectTimeoutMS=10000
+)
+db = client[settings.DATABASE_NAME]
 
 room_collection = db["rooms"]

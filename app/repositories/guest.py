@@ -1,5 +1,6 @@
 from app.core.database import db
 from bson import ObjectId
+from bson.errors import InvalidId
 
 guest_collection = db["guests"]
 
@@ -16,10 +17,13 @@ def get_guests():
     return guests
 
 def get_guest_by_id(guest_id: str):
-    guest = guest_collection.find_one({"_id": ObjectId(guest_id)})
-    if guest:
-        guest["_id"] = str(guest["_id"])
-    return guest
+    try:
+        guest = guest_collection.find_one({"_id": ObjectId(guest_id)})
+        if guest:
+            guest["_id"] = str(guest["_id"])
+        return guest
+    except InvalidId:
+        return None
 
 def get_guest_by_phone(phone: str):
     guest = guest_collection.find_one({"phone": phone})

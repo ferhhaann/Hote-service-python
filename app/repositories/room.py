@@ -1,5 +1,6 @@
 from app.core.database import room_collection
 from bson import ObjectId
+from bson.errors import InvalidId
 
 def create_room(room_data: dict):
     room_data["status"] = "AVAILABLE"
@@ -15,10 +16,13 @@ def get_rooms():
     return rooms
 
 def get_room_by_id(room_id: str):
-    room = room_collection.find_one({"_id": ObjectId(room_id)})
-    if room:
-        room["_id"] = str(room["_id"])
-    return room
+    try:
+        room = room_collection.find_one({"_id": ObjectId(room_id)})
+        if room:
+            room["_id"] = str(room["_id"])
+        return room
+    except InvalidId:
+        return None
 
 def get_room_by_number(room_number: str):
     room = room_collection.find_one({"room_number": room_number})
@@ -27,10 +31,13 @@ def get_room_by_number(room_number: str):
     return room
 
 def update_room_status(room_id: str, status: str):
-    result = room_collection.update_one(
-        {"_id": ObjectId(room_id)},
-        {"$set": {"status": status}}
-    )
-    if result.modified_count == 0:
+    try:
+        result = room_collection.update_one(
+            {"_id": ObjectId(room_id)},
+            {"$set": {"status": status}}
+        )
+        if result.modified_count == 0:
+            return None
+        return get_room_by_id(room_id)
+    except InvalidId:
         return None
-    return get_room_by_id(room_id)

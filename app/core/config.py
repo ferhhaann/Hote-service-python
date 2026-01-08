@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     MONGODB_URL: str = "mongodb://localhost:27017"
     DATABASE_NAME: str = "hotel_db"
+    CORS_ORIGINS: str = "http://localhost:5173"
     
     class Config:
         env_file = ".env"

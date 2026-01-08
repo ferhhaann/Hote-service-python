@@ -1,5 +1,6 @@
 from app.core.database import db
 from bson import ObjectId
+from bson.errors import InvalidId
 
 reservation_collection = db["reservations"]
 
@@ -9,12 +10,15 @@ def create_reservation(data: dict):
     return data
 
 def get_reservation_by_id(reservation_id: str):
-    reservation = reservation_collection.find_one(
-        {"_id": ObjectId(reservation_id)}
-    )
-    if reservation:
-        reservation["_id"] = str(reservation["_id"])
-    return reservation
+    try:
+        reservation = reservation_collection.find_one(
+            {"_id": ObjectId(reservation_id)}
+        )
+        if reservation:
+            reservation["_id"] = str(reservation["_id"])
+        return reservation
+    except InvalidId:
+        return None
 
 def get_reservations_for_room(room_id: str):
     return list(
@@ -22,10 +26,14 @@ def get_reservations_for_room(room_id: str):
     )
 
 def update_reservation_status(reservation_id: str, status: str):
-    reservation_collection.update_one(
-        {"_id": ObjectId(reservation_id)},
-        {"$set": {"status": status}}
-    )
+    try:
+        result = reservation_collection.update_one(
+            {"_id": ObjectId(reservation_id)},
+            {"$set": {"status": status}}
+        )
+        return result.modified_count > 0
+    except InvalidId:
+        return False
 
 def get_active_reservations():
     return list(

@@ -10,3 +10,6 @@ class RoomResponse(BaseModel):
     room_number: str
     type: str
     status: str
+
+class StatusUpdate(BaseModel):
+    status: Literal["AVAILABLE", "OCCUPIED", "MAINTENANCE"]

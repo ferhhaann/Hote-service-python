@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
 from app.core.security import get_current_user, require_role
-from app.schemas.room import RoomCreate, RoomResponse
+from app.schemas.room import RoomCreate, RoomResponse, StatusUpdate
 from app.services.room import (
     create_room_service,
     get_rooms_service,
@@ -46,12 +46,12 @@ def get_room(room_id: str):
         "status": room["status"]
     }
 @router.put("/{room_id}/status", response_model=RoomResponse)
-def update_room_status(room_id: str, status: str):
+def update_room_status(room_id: str, payload: StatusUpdate):
     room = get_room_service(room_id)
     if not room:
         raise HTTPException(status_code=404, detail="Room not found")
 
-    updated_room = update_room_status_service(room_id, status)
+    updated_room = update_room_status_service(room_id, payload.status)
     return {
         "id": updated_room["_id"],
         "room_number": updated_room["room_number"],
