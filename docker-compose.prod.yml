@@ -1,6 +1,24 @@
 version: '3.8'
 
 services:
+  mongodb:
+    image: mongo:7.0
+    container_name: hotel-mongodb-prod
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: hotel_db
+    volumes:
+      - mongodb_prod_data:/data/db
+    networks:
+      - hotel-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   api:
     build: .
     container_name: hotel-api
@@ -8,6 +26,8 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    depends_on:
+      - mongodb
     restart: unless-stopped
     networks:
       - hotel-network
@@ -17,6 +37,9 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+volumes:
+  mongodb_prod_data:
 
 networks:
   hotel-network:
